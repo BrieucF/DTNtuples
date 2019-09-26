@@ -1,0 +1,8 @@
+#include "TROOT.h"
+
+void loadTPGSimAnalysis()
+{
+  gROOT->ProcessLine(".L DTNtupleBaseAnalyzer.C++");
+//   gROOT->ProcessLine(".L DTNtupleTPGSimAnalyzer_Resolution.C++");
+  gROOT->ProcessLine(".L DTNtupleTPGSimAnalyzer_timing.C++");
+}
