@@ -1,5 +1,6 @@
 import ROOT as r
 import sys
+import os
 r.gROOT.SetBatch(True)
 r.gROOT.ProcessLine(".L /afs/cern.ch/user/b/brfranco/work/public/RPC/PlottingTemplate_L1T_TDR/PlotTemplate.C")
 r.gStyle.SetOptStat(000000)
@@ -13,6 +14,7 @@ histo_name = 'hTimingOffSeg_AM'
 #histo_name = 'hdTimingOffSeg_AM'
 #histo_name = 'hBXOffSeg_AM'
 
+plot_dir = 'plots'
 plotName_tpl = 'barrel_tp_time_resolution_' + histo_name
 LogY = True
 DisplayGrid = True
@@ -21,7 +23,8 @@ Lumi = "35.9"
 
 for logY in [True, False]:
     for pu in 'nopu,pu'.split(','):
-        legend = r.TLegend(0.14, 0.75, 0.40, 0.86)
+        #legend = r.TLegend(0.14, 0.75, 0.40, 0.86)
+        legend = r.TLegend(0.14, 0.72, 0.47, 0.86)
         #sigma_text = r.TPaveText(0.14, 0.75, 0.40, 0.86)
         #sigma_text = r.TPaveText(0.64, 0.75, 0.90, 0.86)
         plotName = plotName_tpl
@@ -33,10 +36,13 @@ for logY in [True, False]:
             plotName += "_" + pu 
             myCanvas = r.CreateCanvas(plotName, logY, DisplayGrid)
         sigma_text = r.TLatex()
-        sigma_text.SetTextSize(0.025);
-        text_x_start_position = 0.64
-        text_y_start_position = 0.84
-        y_step = 0.03
+        #sigma_text.SetTextSize(0.025);
+        sigma_text.SetTextSize(0.035);
+        #text_x_start_position = 0.64
+        text_x_start_position = 0.59
+        #text_y_start_position = 0.84
+        text_y_start_position = 0.835
+        y_step = 0.033
         filenames = {}
         rootfiles = {}
         th1s = {}
@@ -46,6 +52,7 @@ for logY in [True, False]:
                 for qual in ['nothreehits']:
                 #for qual in ',nothreehits,higherthanfour,higherthanfourvetoing'.split(','):
                     filename = filename_template.replace("RPC", rpc).replace("QUAL", qual).replace("PU", pu).replace("AGE", age)
+                    print filename
                     filenames[pu+age+rpc+qual] = filename
                     rootfiles[pu+age+rpc+qual] = r.TFile(filename)
                     th1s[pu+age+rpc+qual] = rootfiles[pu+age+rpc+qual].Get(histo_name)
@@ -97,4 +104,4 @@ for logY in [True, False]:
         r.DrawLumiLabel(myCanvas, Lumi);
         myCanvas.cd()
         sigma_text.Draw("same")
-        r.SaveCanvas(myCanvas, plotName);
+        r.SaveCanvas(myCanvas, os.path.join(plot_dir, plotName));

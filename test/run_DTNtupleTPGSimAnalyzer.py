@@ -17,6 +17,7 @@ def ExecuteTheThing(tsk):
     pu, age, rpc, qual, ind, indmax = tsk
     inname  = '%s_%s_%s'%('nopu' if pu == 'nopu' else 'pu200', age, rpc)
     outname = "results_timing_%s_%s_%s_%s.root"%(pu, age, rpc, qual) * (ind == -99 and indmax == +99) + "results_timing_%s_%s_%s_%s_%s.root"%(pu, age, rpc, qual, "ind%i"%(ind) * (ind != -99) + "indmax%i"%(indmax) * (indmax != +99)) * (ind != -99 or indmax != +99)
+    #outname = "results_BX_%s_%s_%s_%s.root"%(pu, age, rpc, qual) * (ind == -99 and indmax == +99) + "results_timing_%s_%s_%s_%s_%s.root"%(pu, age, rpc, qual, "ind%i"%(ind) * (ind != -99) + "indmax%i"%(indmax) * (indmax != +99)) * (ind != -99 or indmax != +99)
     analysis = r.DTNtupleTPGSimAnalyzer(path%inname, outname, qual, ind, indmax)
     analysis.Loop()
     return
@@ -34,7 +35,7 @@ for pu in 'nopu,pu'.split(','):
                     tasks.append( (pu, age, rpc, qual, 0, +99) )
                     tasks.append( (pu, age, rpc, qual, -99, 2) )
 
-#tasks.append(("pu", "age", "withrpc", "nothreehits", -99, +99))
+#tasks.append(("nopu", "age", "withrpc", "nothreehits", -99, +99))
 
 #tasks.append( ("nopu", "age", "withrpc", "higherthanfourvetoing", -99, +99) )
 

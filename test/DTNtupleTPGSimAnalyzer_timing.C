@@ -347,6 +347,7 @@ void DTNtupleTPGSimAnalyzer::fill()
         Int_t trigAMt0  = ph2TpgPhiEmuAm_t0->at(iTrigAM);
         Int_t trigAMRpcFlag  = ph2TpgPhiEmuAm_rpcFlag->at(iTrigAM);
         if (trigAMRpcFlag == 5) continue; // skip all the RPC hit that were used elsewhere
+        //if (trigAMRpcFlag == 0 || trigAMRpcFlag == 4) continue; // skip all the RPC hit that were used elsewhere
         Int_t trigAMdBX  = ph2TpgPhiEmuAm_BX->at(iTrigAM) - round((seg_phi_t0->at(iSeg) + 12.5)/25.);
         Int_t trigAMdt0  = ph2TpgPhiEmuAm_t0->at(iTrigAM) - (seg_phi_t0->at(iSeg) + 20*25);
 
