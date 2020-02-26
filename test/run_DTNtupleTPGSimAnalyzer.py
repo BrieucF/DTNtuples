@@ -10,13 +10,14 @@ else:                  nCores = 1
 
 
 #path = "/pool/ciencias/userstorage/sscruz/DT_TDR_12sep/%s.root"
-path = "/eos/cms/store/group/dpg_rpc/comm_rpc/Trigger/dt_phaseII_ntuples/190925_storeAllRPC/%s.root"
+path = "/eos/cms/store/group/dpg_rpc/comm_rpc/Trigger/dt_phaseII_ntuples/191010_changeAlsoQ9/%s.root"
+#path = "/eos/cms/store/group/dpg_rpc/comm_rpc/Trigger/dt_phaseII_ntuples/190925_storeAllRPC/%s.root"
 
 #def ExecuteTheThing(pu, age, rpc, qual, ind = -99, indmax = +99):
 def ExecuteTheThing(tsk):
     pu, age, rpc, qual, ind, indmax = tsk
     inname  = '%s_%s_%s'%('nopu' if pu == 'nopu' else 'pu200', age, rpc)
-    outname = "results_timing_%s_%s_%s_%s.root"%(pu, age, rpc, qual) * (ind == -99 and indmax == +99) + "results_timing_%s_%s_%s_%s_%s.root"%(pu, age, rpc, qual, "ind%i"%(ind) * (ind != -99) + "indmax%i"%(indmax) * (indmax != +99)) * (ind != -99 or indmax != +99)
+    outname = "results_timing_tightWindow_alsoQ9_check_dPhi_%s_%s_%s_%s.root"%(pu, age, rpc, qual) * (ind == -99 and indmax == +99) + "results_timing_tightWindow_alsoQ9_check_dPhi_%s_%s_%s_%s_%s.root"%(pu, age, rpc, qual, "ind%i"%(ind) * (ind != -99) + "indmax%i"%(indmax) * (indmax != +99)) * (ind != -99 or indmax != +99)
     #outname = "results_BX_%s_%s_%s_%s.root"%(pu, age, rpc, qual) * (ind == -99 and indmax == +99) + "results_timing_%s_%s_%s_%s_%s.root"%(pu, age, rpc, qual, "ind%i"%(ind) * (ind != -99) + "indmax%i"%(indmax) * (indmax != +99)) * (ind != -99 or indmax != +99)
     analysis = r.DTNtupleTPGSimAnalyzer(path%inname, outname, qual, ind, indmax)
     analysis.Loop()
@@ -24,18 +25,34 @@ def ExecuteTheThing(tsk):
 
 
 tasks = []
-for pu in 'nopu,pu'.split(','):
-    for age in 'age,noage'.split(','):
-        for rpc in "withrpc,norpc".split(","):
-            for qual in ['nothreehits']:
-            #for qual in ',nothreehits,higherthanfour,higherthanfourvetoing'.split(','):
-            #for qual in 'higherthanfour,higherthanfourvetoing'.split(','):
-                tasks.append( (pu, age, rpc, qual, -99, +99) )
-                if qual == "":
-                    tasks.append( (pu, age, rpc, qual, 0, +99) )
-                    tasks.append( (pu, age, rpc, qual, -99, 2) )
+#for pu in 'nopu,pu'.split(','):
+#    for age in 'age,noage'.split(','):
+#        for rpc in "withrpc,norpc".split(","):
+#            for qual in ['nothreehits']:
+#            #for qual in ',nothreehits,higherthanfour,higherthanfourvetoing'.split(','):
+#            #for qual in 'higherthanfour,higherthanfourvetoing'.split(','):
+#                tasks.append( (pu, age, rpc, qual, -99, +99) )
+#                if qual == "":
+#                    tasks.append( (pu, age, rpc, qual, 0, +99) )
+#                    tasks.append( (pu, age, rpc, qual, -99, 2) )
 
-#tasks.append(("nopu", "age", "withrpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "noage", "norpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "noage", "norpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "age", "norpc", "nothreehits", -99, +99))
+#tasks.append(("nopu", "noage", "norpc", "nothreehits", -99, +99))
+#tasks.append(("nopu", "age", "norpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "age", "norpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "age", "norpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "noage", "norpc", "nothreehits", -99, +99))
+#
+#tasks.append(("pu", "age", "withrpc", "nothreehits", -99, +99))
+#tasks.append(("pu", "noage", "withrpc", "nothreehits", -99, +99))
+tasks.append(("pu", "age", "norpc", "", -99, +99))
+tasks.append(("pu", "noage", "norpc", "", -99, +99))
+
+tasks.append(("pu", "age", "withrpc", "", -99, +99))
+tasks.append(("pu", "noage", "withrpc", "", -99, +99))
+#tasks.append(("nopu", "noage", "withrpc", "nothreehits", -99, +99))
 
 #tasks.append( ("nopu", "age", "withrpc", "higherthanfourvetoing", -99, +99) )
 

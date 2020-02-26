@@ -6,7 +6,7 @@ r.gROOT.ProcessLine(".L /afs/cern.ch/user/b/brfranco/work/public/RPC/PlottingTem
 r.gStyle.SetOptStat(000000)
 r.gStyle.SetOptTitle(0)
 
-filename_template = "results_timing_PU_AGE_RPC_QUAL.root"
+filename_template = "results_timing_alsoQ9_PU_AGE_RPC_QUAL.root"
 
 histo_name = 'hTimingOffSeg_AM'
 #histo_name = 'hTimingOffSeg_AM_MB2_Wh.-1'
@@ -15,7 +15,7 @@ histo_name = 'hTimingOffSeg_AM'
 #histo_name = 'hBXOffSeg_AM'
 
 plot_dir = 'plots'
-plotName_tpl = 'barrel_tp_time_resolution_' + histo_name
+plotName_tpl = 'barrel_tp_time_resolution_alsoq9_' + histo_name
 LogY = True
 DisplayGrid = True
 Lumi = "35.9"
@@ -101,7 +101,7 @@ for logY in [True, False]:
 
         legend.Draw("HISTP")
         r.DrawPrelimLabel(myCanvas)
-        r.DrawLumiLabel(myCanvas, Lumi);
+        r.DrawLumiLabel(myCanvas, Lumi)
         myCanvas.cd()
         sigma_text.Draw("same")
-        r.SaveCanvas(myCanvas, os.path.join(plot_dir, plotName));
+        r.SaveCanvas(myCanvas, os.path.join(plot_dir, plotName))

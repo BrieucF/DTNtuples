@@ -23,8 +23,10 @@ DTNtupleTPGSimAnalyzer::DTNtupleTPGSimAnalyzer(const TString & inFileName,
 
   m_minMuPt = 20;
 
-  m_maxMuSegDPhi = 0.2;
-  m_maxMuSegDEta = 0.3;
+  //m_maxMuSegDPhi = 0.2;
+  //m_maxMuSegDEta = 0.3;
+  m_maxMuSegDPhi = 0.1;
+  m_maxMuSegDEta = 0.15;
 
   m_minSegHits = 4;
 
@@ -78,6 +80,7 @@ void DTNtupleTPGSimAnalyzer::book()
 {
   m_outFile.cd();
 
+  // RPC and DT TP do not have exactly the same time calibration
 //   std::vector<std::string> algoTag  = {"HB",      "AM", "AM+RPC"};
   std::vector<std::string> algoTags  = {"HB", "AM"};
   std::vector<std::string> stationTags = {"MB1",     "MB2", "MB3", "MB4"};
@@ -103,7 +106,7 @@ void DTNtupleTPGSimAnalyzer::book()
                                                 6, -3, 3);
       m_plots["TimingOffSeg_" + algo + "_" + station + "_" + wheel] = new TH1D(("hTimingOffSeg_" + algo + "_" + station + "_" + wheel).c_str(),
                                                 ("Timing of TP associated to offline Seg for " + algo + "_" + station + "_" + wheel).c_str(),
-                                                40, 480, 520);
+                                                40, -20, 20);
       m_plots["BXOffSeg_" + algo + "_" + station + "_" + wheel] = new TH1D(("hBXOffSeg_" + algo + "_" + station + "_" + wheel).c_str(),
                                                 ("BX of TP associated to offline Seg for " + algo + "_" + station + "_" + wheel).c_str(),
                                                 6, 17, 23);
@@ -120,11 +123,29 @@ void DTNtupleTPGSimAnalyzer::book()
     m_plots["dBXOffSeg_" + algo ] = new TH1D(("hdBXOffSeg_" + algo ).c_str(),
                                               ("Offline BX - TP BX of TP associated to offline Seg for " + algo).c_str(), 6, -3, 3);
     m_plots["TimingOffSeg_" + algo ] = new TH1D(("hTimingOffSeg_" + algo ).c_str(),
-                                              ("Timing of TP associated to offline Seg for " + algo).c_str(), 40, 480, 520);
+                                              ("Timing of TP associated to offline Seg for " + algo).c_str(), 40, -20, 20);
     m_plots["BXOffSeg_" + algo ] = new TH1D(("hBXOffSeg_" + algo ).c_str(),
                                                 ("BX of TP associated to offline Seg for " + algo).c_str(), 6, 17, 23);
     m_plots["dPhi_Off_TP_" + algo ] = new TH1D(("dPhiOffSeg_TP_" + algo ).c_str(),
                                                 ("Offline phi - TP phi of TP associated to offline Seg for " + algo).c_str(), 100, -0.02, 0.02);
+    m_plots["dPhi_Off_TP_rpcFlag2_" + algo ] = new TH1D(("dPhiOffSeg_TP_rpcFlag2_" + algo ).c_str(),
+                                                ("Offline phi - TP phi of TP_rpcFlag2 associated to offline Seg for " + algo).c_str(), 100, -0.02, 0.02);
+    m_plots["dPhiB_Off_TP_rpcFlag2_" + algo ] = new TH1D(("dPhiBOffSeg_TP_rpcFlag2_" + algo ).c_str(),
+                                                ("Offline phiB - TP phiB of TP_rpcFlag2 associated to offline Seg for " + algo).c_str(), 100, -0.2, 0.2);
+    m_plots["dPhiB_v2_Off_TP_rpcFlag2_" + algo ] = new TH1D(("dPhiBv2OffSeg_TP_rpcFlag2_" + algo ).c_str(),
+                                                ("Offline TanPsi - RPC only segments TanPsi " + algo ).c_str(), 100, -0.2, 0.2);
+    m_plots["dPhiB_v2_Off_TP_" + algo ] = new TH1D(("dPhiBv2OffSeg_TP_" + algo ).c_str(),
+                                                ("Offline TanPsi - TP TanPsi " + algo ).c_str(), 100, -0.2, 0.2);
+    m_plots["dPhi_Off_TP_rpcFlag3_" + algo ] = new TH1D(("dPhiOffSeg_TP_rpcFlag3" + algo ).c_str(),
+                                                ("Offline phi - TP phi of TP_rpcFlag3 associated to offline Seg for " + algo).c_str(), 100, -0.02, 0.02);
+    m_plots["dPhiB_v2_Off_TP_dt3hit_" + algo ] = new TH1D(("dPhiBv2OffSeg_TP_dt3hit_" + algo ).c_str(),
+                                                ("Offline TanPsi - DT TP with 3 hits TanPsi " + algo ).c_str(), 100, -0.2, 0.2);
+    m_plots["dPhi_Off_TP_dt3hit_" + algo ] = new TH1D(("dPhiOffSeg_TP_dt3hit" + algo ).c_str(),
+                                                ("Offline phi - DT TP with 3 hits phi " + algo).c_str(), 100, -0.02, 0.02);
+    m_plots["rpcFlag_TP_" + algo ] = new TH1D(("rpcFlag_" + algo ).c_str(),
+                                                ("rpcFlag of TP associated to offline Seg for " + algo).c_str(), 6, 0, 6);
+    m_plots["quality_TP_" + algo ] = new TH1D(("quality_" + algo ).c_str(),
+                                                ("quality of TP associated to offline Seg for " + algo).c_str(), 11, -1, 10);
   }
 }
 
@@ -132,6 +153,16 @@ void DTNtupleTPGSimAnalyzer::book()
 
 void DTNtupleTPGSimAnalyzer::fill()
 {
+  double time_shift = -500;
+  TString tmp_str = TString(m_outFile.GetName());
+  //std::cout << tmp_str << std::endl;
+  if (tmp_str.Contains("withrpc")){
+      time_shift = -500.4;
+  }
+  else{
+      time_shift = -500.7;
+  }
+
   Int_t minQualityAM = -99;
   Int_t minQualityHB = -99;
   std::vector<Int_t> vetoedqualitiesAM; vetoedqualitiesAM.clear();
@@ -333,11 +364,15 @@ void DTNtupleTPGSimAnalyzer::fill()
       // ==================== VARIABLES FOR THE ANALYTICAL METHOD ALGORITHM
       Int_t    bestTPAM = -1;
       Double_t bestSegTrigAMDPhi = 1000;
+      Double_t bestSegTrigAMDPhiB = 1000;
+      Double_t bestSegTrigAMDPhiB_v2 = 1000;
       Double_t bestAMDPhi = 0;
       Int_t    besttrigAMBX = 0;
       Int_t    besttrigAMt0 = 0;
       Int_t    besttrigAMdBX = 0;
       Int_t    besttrigAMdt0 = 0;
+      Int_t    besttrigAMrpcFlag = -1;
+      Int_t    besttrigAMquality = -2;
       for (std::size_t iTrigAM = 0; iTrigAM < ph2TpgPhiEmuAm_nTrigs; ++iTrigAM)
       {
         Int_t trigAMWh  = ph2TpgPhiEmuAm_wheel->at(iTrigAM);
@@ -350,6 +385,8 @@ void DTNtupleTPGSimAnalyzer::fill()
         //if (trigAMRpcFlag == 0 || trigAMRpcFlag == 4) continue; // skip all the RPC hit that were used elsewhere
         Int_t trigAMdBX  = ph2TpgPhiEmuAm_BX->at(iTrigAM) - round((seg_phi_t0->at(iSeg) + 12.5)/25.);
         Int_t trigAMdt0  = ph2TpgPhiEmuAm_t0->at(iTrigAM) - (seg_phi_t0->at(iSeg) + 20*25);
+        Double_t AMDPhiB = (seg_dirLoc_x->at(iSeg) / seg_dirLoc_z->at(iSeg)) - TMath::TwoPi() * ph2TpgPhiEmuAm_dirLoc_phi->at(iTrigAM) / 360;
+        Double_t AMDPhiB_v2 = (seg_dirLoc_x->at(iSeg) / seg_dirLoc_z->at(iSeg)) - tan (TMath::TwoPi() * ph2TpgPhiEmuAm_dirLoc_phi->at(iTrigAM) / 360 ) ; 
 
         if (segWh  == trigAMWh && segSec == trigAMSec &&  segSt  == trigAMSt)
         {
@@ -367,21 +404,42 @@ void DTNtupleTPGSimAnalyzer::fill()
             besttrigAMdt0      = trigAMdt0;
             bestSegTrigAMDPhi = segTrigAMDPhi;
             bestAMDPhi        = TVector2::Phi_mpi_pi(finalAMDPhi);
+            besttrigAMrpcFlag = trigAMRpcFlag;
+            besttrigAMquality = ph2TpgPhiEmuAm_quality->at(iTrigAM);
+            bestSegTrigAMDPhiB = AMDPhiB;
+            bestSegTrigAMDPhiB_v2 = AMDPhiB_v2;
+
           }
         }
       }
 
       if (bestTPAM > -1 && seg_phi_t0->at(iSeg) > -500)
       {
-        m_plots["TimingOffSeg_AM_" + stationTags.at(segSt - 1) + "_" + whTags.at(segWh + 2)]->Fill(besttrigAMt0);
+        if (besttrigAMrpcFlag == 2){
+            m_plots["dPhi_Off_TP_rpcFlag2_AM"]->Fill(bestSegTrigAMDPhi);
+            m_plots["dPhiB_Off_TP_rpcFlag2_AM"]->Fill(bestSegTrigAMDPhiB);
+            m_plots["dPhiB_v2_Off_TP_rpcFlag2_AM"]->Fill(bestSegTrigAMDPhiB_v2);
+        }
+        if (besttrigAMrpcFlag == 3){
+            m_plots["dPhi_Off_TP_rpcFlag3_AM"]->Fill(bestSegTrigAMDPhi);
+        }
+        if (besttrigAMquality < 3 && besttrigAMquality > -1){
+            m_plots["dPhiB_v2_Off_TP_dt3hit_AM"]->Fill(bestSegTrigAMDPhiB_v2);
+            m_plots["dPhi_Off_TP_dt3hit_AM"]->Fill(bestSegTrigAMDPhi);
+        }
+
+        m_plots["TimingOffSeg_AM_" + stationTags.at(segSt - 1) + "_" + whTags.at(segWh + 2)]->Fill(besttrigAMt0 + time_shift);
         m_plots["dTimingOffSeg_AM_" + stationTags.at(segSt - 1) + "_" + whTags.at(segWh + 2)]->Fill(besttrigAMdt0);
         m_plots["BXOffSeg_AM_" + stationTags.at(segSt - 1) + "_" + whTags.at(segWh + 2)]->Fill(besttrigAMBX);
         m_plots["dBXOffSeg_AM_" + stationTags.at(segSt - 1) + "_" + whTags.at(segWh + 2)]->Fill(besttrigAMdBX);
-        m_plots["TimingOffSeg_AM"]->Fill(besttrigAMt0);
+        m_plots["TimingOffSeg_AM"]->Fill(besttrigAMt0 + time_shift);
         m_plots["dTimingOffSeg_AM"]->Fill(besttrigAMdt0);
         m_plots["BXOffSeg_AM"]->Fill(besttrigAMBX);
         m_plots["dBXOffSeg_AM"]->Fill(besttrigAMdBX);
         m_plots["dPhi_Off_TP_AM"]->Fill(bestSegTrigAMDPhi);
+        m_plots["rpcFlag_TP_AM"]->Fill(besttrigAMrpcFlag);
+        m_plots["quality_TP_AM"]->Fill(besttrigAMquality);
+        m_plots["dPhiB_v2_Off_TP_AM"]->Fill(bestSegTrigAMDPhiB_v2);
       }
     }
   }
